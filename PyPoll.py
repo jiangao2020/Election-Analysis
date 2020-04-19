@@ -16,9 +16,17 @@ file_to_save = os.path.join("analysis", "election_analysis.txt")
 # Initialize a total vote counter.
 total_votes = 0
 
-# Candidate Options and candidate votes
+# County options and county votes
+county_options = []
+county_votes = {}
+
+# Candidate options and candidate votes
 candidate_options =[]
 candidate_votes ={}
+
+# Largest County Turnout
+largest_county=""
+largest_turnout=0
 
 # Winning Candidate and Winning Count Tracker
 winning_candidate = ""
@@ -35,8 +43,18 @@ with open(file_to_load) as election_data:
     for row in file_reader:
          total_votes += 1
 
+         county_name=row[1]
+
          candidate_name=row[2]
 
+         if county_name not in county_options:
+
+            county_options.append(county_name)
+
+            county_votes[county_name] = 0
+
+         county_votes[county_name] += 1
+ 
          if candidate_name not in candidate_options:
 
             candidate_options.append(candidate_name)
@@ -50,10 +68,33 @@ with open(file_to_save,"w") as txt_file:
         f"\nElection Results\n"
         f"-------------------------\n"
         f"Total Votes: {total_votes:,}\n"
-        f"-------------------------\n")
+        f"-------------------------\n"
+        f"\nCounty Votes:\n")
+
    print(election_results, end="")
    txt_file.write(election_results)
- 
+
+   for county in county_votes:
+      voters = county_votes[county]
+      cvote_percentage = float(voters)/float(total_votes)*100
+
+      county_results = (f"{county}: {cvote_percentage:.1f}% ({voters:,})\n")
+
+      print(county_results)
+      txt_file.write(county_results)
+
+      if voters > largest_turnout:
+                  largest_turnout = voters
+                  largest_county = county
+   
+   largest_turnout_summary = (
+      f"-------------------------\n"
+      f"Largest County Turnout: {largest_county}\n"
+      f"-------------------------\n")
+   
+   print(largest_turnout_summary)
+   txt_file.write(largest_turnout_summary)
+
    for candidate in candidate_votes:
       votes = candidate_votes[candidate]
       vote_percentage = float(votes)/float(total_votes)*100
